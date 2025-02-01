@@ -21,7 +21,7 @@ import click
 import pytz
 from dateutil.relativedelta import relativedelta
 
-from rctclient.exceptions import FrameCRCMismatch
+from rctclient.exceptions import FrameCRCMismatch, FrameLengthExceeded, InvalidCommand
 from rctclient.frame import ReceiveFrame, make_frame
 from rctclient.registry import REGISTRY as R
 from rctclient.types import Command, DataType
@@ -228,6 +228,12 @@ def timeseries2csv(host: str, port: int, output: Optional[str], header_format: b
                             rframe.consume(buf)
                         except FrameCRCMismatch:
                             cprint('\tCRC error')
+                            break
+                        except FrameLengthExceeded:
+                            cprint('\tFrame length exceeded')
+                            break
+                        except InvalidCommand:
+                            cprint('\tInvalid command')
                             break
                         if rframe.complete():
                             break
